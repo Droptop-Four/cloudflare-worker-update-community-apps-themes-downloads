@@ -9,5 +9,11 @@
   },
   "devDependencies": {
     "wrangler": "^3.60.3"
+  },
+  "dependencies": {
+    "base-64": "^1.0.0",
+    "json-bigint": "^1.0.0",
+    "realm-web": "^2.0.1",
+    "toucan-js": "^4.0.0"
   }
 }
