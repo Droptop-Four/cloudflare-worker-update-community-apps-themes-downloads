@@ -1,7 +1,7 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "cloudflare-worker-update-community-apps-themes-downloads"
 main = "src/index.js"
-compatibility_date = "2024-07-18"
+compatibility_date = "2024-07-12"
 workers_dev = false
 
 [triggers]

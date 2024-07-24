@@ -37,7 +37,12 @@ async function updateAppDownloads(apiKey, collection, url) {
 
 	for (let app of jsonData.apps) {
 		const downloadNumber = await collection.findOne({ uuid: app.app.uuid });
-		app.app.downloads = downloadNumber.downloads;
+		if (downloadNumber) {
+			app.app.downloads = downloadNumber.downloads;
+		} else {
+			console.warn(`Download number not found for app ${app.app.uuid}`);
+			app.app.downloads = 0;
+		}
 	}
 
 	const updatedContent = JSONbig.stringify(jsonData, null, 4);
@@ -88,7 +93,12 @@ async function updateThemeDownloads(apiKey, collection, url) {
 
 	for (let theme of jsonData.themes) {
 		const downloadNumber = await collection.findOne({ uuid: theme.theme.uuid });
-		theme.theme.downloads = downloadNumber.downloads;
+		if (downloadNumber) {
+			theme.theme.downloads = downloadNumber.downloads;
+		} else {
+			console.warn(`Download number not found for theme ${theme.theme.uuid}`);
+			theme.theme.downloads = 0;
+		}
 	}
 
 	const updatedContent = JSONbig.stringify(jsonData, null, 4);
