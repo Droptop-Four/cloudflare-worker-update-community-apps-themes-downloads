@@ -42,7 +42,7 @@ async function updateAppDownloads(apiKey, collection, url) {
 		if (downloadNumber) {
 			app.app.downloads = downloadNumber.downloads;
 		} else {
-			console.warn(`Download number not found for app ${app.app.uuid}`);
+			console.log(`Download number not found for app ${app.app.uuid}`);
 			app.app.downloads = 0;
 		}
 	}
@@ -70,7 +70,7 @@ async function updateAppDownloads(apiKey, collection, url) {
 	if (response.ok) {
 		console.log('Community Apps download numbers updated and committed successfully');
 	} else {
-		console.error('Failed to commit updated Community Apps download numbers');
+		console.log('Failed to commit updated Community Apps download numbers');
 	}
 }
 
@@ -100,7 +100,7 @@ async function updateThemeDownloads(apiKey, collection, url) {
 		if (downloadNumber) {
 			theme.theme.downloads = downloadNumber.downloads;
 		} else {
-			console.warn(`Download number not found for theme ${theme.theme.uuid}`);
+			console.log(`Download number not found for theme ${theme.theme.uuid}`);
 			theme.theme.downloads = 0;
 		}
 	}
@@ -128,7 +128,7 @@ async function updateThemeDownloads(apiKey, collection, url) {
 	if (response.ok) {
 		console.log('Community Themes download numbers updated and committed successfully');
 	} else {
-		console.error('Failed to commit updated Community Themes download numbers');
+		console.log('Failed to commit updated Community Themes download numbers');
 	}
 }
 
@@ -151,7 +151,7 @@ export default {
 			console.log('Downloads updated successfully');
 		} catch (error) {
 			sentry.captureException(error);
-			console.error('Error updating downloads:', error.message);
+			console.log('Error updating downloads:', error.message);
 		}
 	},
 };
