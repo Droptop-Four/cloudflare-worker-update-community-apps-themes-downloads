@@ -35,8 +35,10 @@ async function updateAppDownloads(apiKey, collection, url) {
 
 	let jsonData = JSONbig.parse(contentDecoded);
 
+	const mongoDownloads = await collection.find();
+
 	for (let app of jsonData.apps) {
-		const downloadNumber = await collection.findOne({ uuid: app.app.uuid });
+		const downloadNumber = mongoDownloads.find(download => download.uuid === app.app.uuid);
 		if (downloadNumber) {
 			app.app.downloads = downloadNumber.downloads;
 		} else {
@@ -90,9 +92,11 @@ async function updateThemeDownloads(apiKey, collection, url) {
 	const contentDecoded = base64.decode(fileData.content);
 
 	let jsonData = JSONbig.parse(contentDecoded);
+	
+	const mongoDownloads = await collection.find();
 
 	for (let theme of jsonData.themes) {
-		const downloadNumber = await collection.findOne({ uuid: theme.theme.uuid });
+		const downloadNumber = mongoDownloads.find(download => download.uuid === theme.theme.uuid);
 		if (downloadNumber) {
 			theme.theme.downloads = downloadNumber.downloads;
 		} else {
