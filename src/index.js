@@ -16,7 +16,43 @@ async function realmLogin(appId, apiKey) {
 	return user;
 }
 
-async function updateAppDownloads(apiKey, collection, url) {
+async function getInstallationToken(jwt) {
+	const response = await fetch('https://api.github.com/app/installations', {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${jwt}`,
+			Accept: 'application/vnd.github+json',
+			'X-GitHub-Api-Version': '2022-11-28',
+			'User-Agent': 'update-community-apps-themes-downloads',
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to get installations');
+	}
+
+	const installations = await response.json();
+	const installationId = installations[0].id;
+
+	const tokenResponse = await fetch(`https://api.github.com/app/installations/${installationId}/access_tokens`, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${jwt}`,
+			Accept: 'application/vnd.github.v3+json',
+			'X-GitHub-Api-Version': '2022-11-28',
+			'User-Agent': 'update-community-apps-themes-downloads',
+		},
+	});
+
+	if (!tokenResponse.ok) {
+		throw new Error('Failed to create installation token');
+	}
+
+	const tokenData = await tokenResponse.json();
+	return tokenData.token;
+}
+
+async function updateAppDownloads(installationToken, collection, url) {
 	const path = 'data/community_apps/community_apps.json';
 
 	let completeUrl = `${url}${path}`;
@@ -24,7 +60,7 @@ async function updateAppDownloads(apiKey, collection, url) {
 	let response = await fetch(completeUrl, {
 		method: 'GET',
 		headers: {
-			Authorization: `Bearer ${apiKey}`,
+			Authorization: `Bearer ${installationToken}`,
 			Accept: 'application/vnd.github.v3+json',
 			'X-GitHub-Api-Version': '2022-11-28',
 			'User-Agent': 'update-community-apps-themes-downloads',
@@ -54,7 +90,7 @@ async function updateAppDownloads(apiKey, collection, url) {
 	response = await fetch(completeUrl, {
 		method: 'PUT',
 		headers: {
-			Authorization: `Bearer ${apiKey}`,
+			Authorization: `Bearer ${installationToken}`,
 			Accept: 'application/vnd.github.v3+json',
 			'Content-Type': 'application/json',
 			'X-GitHub-Api-Version': '2022-11-28',
@@ -74,7 +110,7 @@ async function updateAppDownloads(apiKey, collection, url) {
 	}
 }
 
-async function updateThemeDownloads(apiKey, collection, url) {
+async function updateThemeDownloads(installationToken, collection, url) {
 	const path = 'data/community_themes/community_themes.json';
 
 	let completeUrl = `${url}${path}`;
@@ -82,7 +118,7 @@ async function updateThemeDownloads(apiKey, collection, url) {
 	let response = await fetch(completeUrl, {
 		method: 'GET',
 		headers: {
-			Authorization: `Bearer ${apiKey}`,
+			Authorization: `Bearer ${installationToken}`,
 			Accept: 'application/vnd.github.v3+json',
 			'X-GitHub-Api-Version': '2022-11-28',
 			'User-Agent': 'update-community-apps-themes-downloads',
@@ -112,7 +148,7 @@ async function updateThemeDownloads(apiKey, collection, url) {
 	response = await fetch(completeUrl, {
 		method: 'PUT',
 		headers: {
-			Authorization: `Bearer ${apiKey}`,
+			Authorization: `Bearer ${installationToken}`,
 			Accept: 'application/vnd.github.v3+json',
 			'Content-Type': 'application/json',
 			'X-GitHub-Api-Version': '2022-11-28',
@@ -145,8 +181,11 @@ export default {
 			const user = await realmLogin(env.REALM_APPID, env.REALM_APIKEY);
 			const app_collection = user.mongoClient('mongodb-atlas').db(env.DB).collection(env.APP_COLLECTION);
 			const theme_collection = user.mongoClient('mongodb-atlas').db(env.DB).collection(env.THEME_COLLECTION);
-			await updateAppDownloads(env.GITHUB_APIKEY, app_collection, url);
-			await updateThemeDownloads(env.GITHUB_APIKEY, theme_collection, url);
+
+			const installation_token = await getInstallationToken(env.GITHUB_APP_JWT);
+
+			await updateAppDownloads(installation_token, app_collection, url);
+			await updateThemeDownloads(installation_token, theme_collection, url);
 
 			console.log('Downloads updated successfully');
 		} catch (error) {
