@@ -1,5 +1,6 @@
 import * as Realm from 'realm-web';
 import { Toucan } from 'toucan-js';
+const { sign } = require('@tsndr/cloudflare-worker-jwt');
 
 const base64 = require('base-64');
 const JSONbig = require('json-bigint');
@@ -168,6 +169,17 @@ async function updateThemeDownloads(installationToken, collection, url) {
 	}
 }
 
+async function createGitHubJWT(appId, privateKey) {
+	const payload = {
+		iat: Math.floor(Date.now() / 1000),
+		exp: Math.floor(Date.now() / 1000) + 10 * 60,
+		iss: appId,
+	};
+
+	const token = await sign(payload, privateKey, { algorithm: 'RS256' });
+	return token;
+}
+
 export default {
 	async scheduled(event, env, ctx) {
 		const sentry = new Toucan({
@@ -178,11 +190,12 @@ export default {
 		const url = `https://api.github.com/repos/Droptop-Four/GlobalData/contents/`;
 
 		try {
+			const jwt = await createGitHubJWT(env.GITHUB_APP_ID, env.GITHUB_APP_PRIVATE_KEY);
+			const installation_token = await getInstallationToken(jwt);
+
 			const user = await realmLogin(env.REALM_APPID, env.REALM_APIKEY);
 			const app_collection = user.mongoClient('mongodb-atlas').db(env.DB).collection(env.APP_COLLECTION);
 			const theme_collection = user.mongoClient('mongodb-atlas').db(env.DB).collection(env.THEME_COLLECTION);
-
-			const installation_token = await getInstallationToken(env.GITHUB_APP_JWT);
 
 			await updateAppDownloads(installation_token, app_collection, url);
 			await updateThemeDownloads(installation_token, theme_collection, url);

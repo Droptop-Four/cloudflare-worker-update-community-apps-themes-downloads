@@ -1,7 +1,18 @@
 {
   "name": "cloudflare-worker-update-community-apps-themes-downloads",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.4.0",
+	"author": "Bunz <66bunz@gmail.com> (https://droptopfour.com)",
+	"description": "This is a Cloudflare Worker used to update the download numbers of community apps & themes.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Droptop-Four/cloudflare-worker-update-community-apps-themes-downloads.git"
+	},
+	"bugs": {
+		"url": "https://github.com//Droptop-Four/cloudflare-worker-update-community-apps-themes-downloads/issues"
+	},
+	"license": "GPL-3.0",
+	"private": true,
+	"main": "src/index.js",
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev --test-scheduled",
@@ -11,6 +22,7 @@
     "wrangler": "^3.60.3"
   },
   "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^2.5.3",
     "base-64": "^1.0.0",
     "json-bigint": "^1.0.0",
     "realm-web": "^2.0.1",
