@@ -19,7 +19,7 @@
     "start": "wrangler dev --test-scheduled"
   },
   "devDependencies": {
-    "wrangler": "^3.60.3"
+    "wrangler": "^4.54.0"
   },
   "dependencies": {
     "@tsndr/cloudflare-worker-jwt": "^2.5.3",
